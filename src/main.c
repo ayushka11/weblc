@@ -47,16 +47,7 @@ enum
     OP_ST,     /* store */
     OP_JSR,    /* jump register */
     OP_AND,    /* bitwise and */
-    OP_LDR,    /* load register */int EMSCRIPTEN_KEEPALIVE CountRegisterJSFunction(){
-    char reg_string[256];
-    int reg_string_index = 0;
-
-    for (int i = 0; i < R_COUNT; i++) {
-        reg_string_index += sprintf(reg_string + reg_string_index, "%d ", reg[i]);
-    }
-
-    printf("Register values: %s\n", reg_string);
-}
+    OP_LDR,    /* load register */
     OP_STR,    /* store register */
     OP_RTI,    /* unused */
     OP_NOT,    /* bitwise not */
@@ -72,39 +63,65 @@ int alerter(){
     emscripten_run_script("alert('The VM has started')");
 }
 
-int EMSCRIPTEN_KEEPALIVE CountRegisterJSFunction(){
-    char reg_string[256];
-    int reg_string_index = 0;
-
-    for (int i = 0; i < R_COUNT; i++) {
-        reg_string_index += sprintf(reg_string + reg_string_index, "%d ", reg[i]);
+uint16_t sign_extend(uint16_t x, int bit_count)
+{
+    if ((x >> (bit_count - 1)) & 1) {
+        x |= (0xFFFF << bit_count);
     }
-
-    printf("Register values: %s\n", reg_string);
+    return x;
 }
+
+void update_flags(uint16_t r)
+{
+    if (reg[r] == 0)
+    {
+        reg[R_COND] = FL_ZRO;
+    }
+    else if (reg[r] >> 15)
+    {
+        reg[R_COND] = FL_NEG;
+    }
+    else
+    {
+        reg[R_COND] = FL_POS;
+    }
+}
+
+
+// inline const char* cstr(const std::string& message) {           //this function converts a string into a form that can be returned.
+//     char * cstr = new char [message.length()+1];
+//     strcpy (cstr, message.c_str());
+//     return cstr;
+// }
+
+// EMSCRIPTEN_KEEPALIVE const char* CountRegisterJSFunction() {
+// 	char reg_string[256];
+//     int reg_string_index = 0;
+
+//     for (int i = 0; i < R_COUNT; i++) {
+//         reg_string_index += sprintf(reg_string + reg_string_index, "%d ", reg[i]);
+//     }
+//     return cstr(reg_string);
+// };
+
 
 int main(int argc, const char* argv[])
 {
     printf("This line printing tests entry into the main function");
     alerter();
-
-    if (argc < 2)
+    if (!read_image(argv[j]))
     {
-        /* show usage string */
-        printf("lc3 [image-file1] ...\n");
-
-        exit(2);
-    }
-
-    for (int j = 1; j < argc; ++j)
-    {
-        if (!read_image(argv[j]))
-        {
-            printf("failed to load image: %s\n", argv[j]);
+            char* dynamic_string = malloc(sizeof(char) * MAX_LENGTH);
+            if (dynamic_string == NULL) {
+                printf("Failed to allocate memory for dynamic string\n");
+                exit(1);
+            }
+            free(dynamic_string);
+            printf("failed to load assembly: %s\n", );
+            emscripten_run_script("alert('File could not load')");
             exit(1);
-        }
     }
-    @{Setup}
+    //@{Setup}
 
     reg[R_COND] = FL_ZRO;
     enum { PC_START = 0x3000 };
@@ -119,53 +136,70 @@ int main(int argc, const char* argv[])
         switch (op)
         {
             case OP_ADD:
-                @{ADD}
+            {
+                uint16_t r0 = (instr >> 9) & 0x7;
+                uint16_t r1 = (instr >> 6) & 0x7;
+                uint16_t imm_flag = (instr >> 5) & 0x1;
+
+                if (imm_flag)
+                {
+                    uint16_t imm5 = sign_extend(instr & 0x1F, 5);
+                    reg[r0] = reg[r1] + imm5;
+                }
+                else
+                {
+                    uint16_t r2 = instr & 0x7;
+                    reg[r0] = reg[r1] + reg[r2];
+                }
+
+                update_flags(r0);
+            }
                 break;
             case OP_AND:
-                @{AND}
+                //@{AND}
                 break;
             case OP_NOT:
-                @{NOT}
+                //@{NOT}
                 break;
             case OP_BR:
-                @{BR}
+                //@{BR}
                 break;
             case OP_JMP:
-                @{JMP}
+                //@{JMP}
                 break;
             case OP_JSR:
-                @{JSR}
+                //@{JSR}
                 break;
             case OP_LD:
-                @{LD}
+                //@{LD}
                 break;
             case OP_LDI:
-                @{LDI}
+                //@{LDI}
                 break;
             case OP_LDR:
-                @{LDR}
+                //@{LDR}
                 break;
             case OP_LEA:
-                @{LEA}
+                //@{LEA}
                 break;
             case OP_ST:
-                @{ST}
+                //@{ST}
                 break;
             case OP_STI:
-                @{STI}
+                //@{STI}
                 break;
             case OP_STR:
-                @{STR}
+                //@{STR}
                 break;
             case OP_TRAP:
-                @{TRAP}
+                //@{TRAP}
                 break;
             case OP_RES:
             case OP_RTI:
             default:
-                @{BAD OPCODE}
+                //@{BAD OPCODE}
                 break;
         }
     }
-    @{Shutdown}
+    //@{Shutdown}
 }
