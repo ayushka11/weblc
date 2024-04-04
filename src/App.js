@@ -6,7 +6,7 @@ import createModule from "./add.mjs";
 function App() {
   const [retrn, setRetrn] = useState();
   const [name,setName] = useState("");
-  const [result,setResult] = useState("");
+  const [result,setResult] = useState("Somethign");
   useEffect(() => { 
     createModule().then((Module) => {    
       setRetrn(() => Module.cwrap("locker", "string", ["string"]));    
@@ -16,7 +16,8 @@ function App() {
       }
 
   const handleClick= ()=>{
-    setResult(retrn(name))
+    setResult(retrn())
+    console.log(result)
   }
   return (
     <div className="App">

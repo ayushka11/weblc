@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <sys/termios.h>
@@ -72,11 +73,11 @@ enum
 
 
 EMSCRIPTEN_KEEPALIVE
-bool locker(){
+void locker(){
     if(locked)
-    locked = true;
-    else
     locked = false;
+    else
+    locked = true;
     return locked;
 }
 
