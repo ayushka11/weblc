@@ -113,9 +113,10 @@ void mem_write(uint16_t addr, uint16_t val){    //TODO  i dont think this has to
     memory[addr] = val;
 }
 
-int load_program_from_file(const char* file){       //TODO      convert this function into the QR code data reading function. The data will be in the form of ascii characters and this should be converted into binary with the ascii binary codes appended together.
-    FILE* image= fopen(file,"rb");
-    if(!image){
+EMSCRIPTEN_KEEPALIVE
+int load_program_from_file(){       //TODO convert this function into the QR code data reading function. The data will be in the form of ascii characters and this should be converted into binary with the ascii binary codes appended together.
+    
+    if(!data){
         return 0;
     }
     uint16_t origin;
@@ -123,7 +124,7 @@ int load_program_from_file(const char* file){       //TODO      convert this fun
     origin = swap16(origin);
     uint16_t max_read = UINT16_MAX - origin;
     uint16_t* i = memory + origin;
-    size_t read = fread(i,sizeof(uint16_t),max_read,image);
+    size_t read = fread(i,sizeof(uint16_t),max_read,image);d(i,sizeof(uint16_t),max_read,image);
     // swap
     while(read-- > 0){
         *i = swap16(*i);
@@ -280,17 +281,16 @@ void trap_putsp(){
 }
 
 
-int main(int argc, const char* argv[]){     //TODO remove the argument checks and the if statements below and make memory to load the function from JS
-    if(argc != 2){
-        printf("Usage: ./lc3 <program>");
-        exit(2);
-    }
-    if(!load_program_from_file(argv[1])){
-        printf("Unable to load program from file %s",argv[2]);
-        exit(2);
-    }
+int main(){     //TODO remove the argument checks and the if statements below and make memory to load the function from JS
+    
+    if(load_program_from_file())
+    {
 
-    // setup();
+    }
+    else{
+        
+    }
+    
     int running = 1;
     while (running)
     {
@@ -365,6 +365,5 @@ int main(int argc, const char* argv[]){     //TODO remove the argument checks an
             break;
         }
     }
-    // restore_input_buffering();
     return 0;
 }
