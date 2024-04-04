@@ -6,23 +6,24 @@ import createModule from "./add.mjs";
 function App() {
   const [retrn, setRetrn] = useState();
   const [name,setName] = useState("");
-  const [result,setResult] = useState("");
+  const [result,setResult] = useState("Somethign");
   useEffect(() => { 
     createModule().then((Module) => {    
-      setRetrn(() => Module.cwrap("idk", "string", ["string"]));    
+      setRetrn(() => Module.cwrap("locker", "string", ["string"]));    
     });  }, []);  
       if (!retrn) {    
         return "Loading webassembly...";  
       }
 
   const handleClick= ()=>{
-    setResult(retrn(name))
+    setResult(retrn())
+    console.log(result)
   }
   return (
     <div className="App">
      <input onChange={e=>{setName(e.target.value)}}></input>
-     <button onClick={()=>handleClick()}>Submit</button>
-     <p>You input:{result}</p>
+     <button onClick={()=>handleClick()}>Lock/Unlock</button>
+     <p>Status:{result}</p>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <sys/termios.h>
@@ -9,7 +10,7 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <emscripten.h>
-
+#include <stdbool.h>
 
 bool locked = true;
 // memory
@@ -74,9 +75,10 @@ enum
 EMSCRIPTEN_KEEPALIVE
 void locker(){
     if(locked)
-    locked = true;
+    locked = false;
     else
-    locaked = false;
+    locked = true;
+    return locked;
 }
 
 void update_flags(uint16_t r0){
@@ -289,7 +291,7 @@ int main(int argc, const char* argv[]){     //TODO remove the argument checks an
         exit(2);
     }
 
-    setup();
+    // setup();
     int running = 1;
     while (running)
     {
@@ -364,6 +366,6 @@ int main(int argc, const char* argv[]){     //TODO remove the argument checks an
             break;
         }
     }
-    restore_input_buffering();
+    // restore_input_buffering();
     return 0;
 }
