@@ -30,6 +30,7 @@ enum {
 };
 
 uint16_t reg[R_COUNT];
+uint16_t reg_copy[R_COUNT]; //copy to store registers
 
 enum
 {
@@ -323,25 +324,12 @@ void setup(){
     disable_input_buffering();
 }
 
+int running = 1;
 
-int main(int argc, const char* argv[]){
-    if(argc != 2){
-        printf("Usage: ./lc3 <program>");
-        exit(2);
-    }
-    if(!load_program_from_file(argv[1])){
-        printf("Unable to load program from file %s",argv[2]);
-        exit(2);
-    }
-
-    setup();
-    int running = 1;
-    while (running)
-    {
-        uint16_t instr = mem_read(reg[R_PC]++);
-        uint16_t op = instr >> 12;
-        switch (op)
-        {
+void execute_single_instruction() {
+    uint16_t instr = mem_read(reg[R_PC]++);
+    uint16_t op = instr >> 12;
+    switch (op) {
         case OP_ADD:
             op_add(instr);
             break;
@@ -382,7 +370,7 @@ int main(int argc, const char* argv[]){
             op_str(instr);
             break;
         case OP_TRAP:
-            switch(instr & 0xff){
+            switch (instr & 0xff) {
                 case TRAP_PUTS:
                     trap_puts();
                     break;
@@ -398,6 +386,7 @@ int main(int argc, const char* argv[]){
                 case TRAP_HALT:
                     puts("HALTING");
                     fflush(stdout);
+                    // Set running to 0 to exit the loop
                     running = 0;
                     break;
             }
@@ -406,6 +395,53 @@ int main(int argc, const char* argv[]){
         case OP_RTI:
         default:
             abort();
+            break;
+    }
+}
+
+void execute() {
+    execute_single_instruction();
+}
+
+void copy_registers() { //to copy registers and display them
+    for (int i = 0; i < R_COUNT; ++i) {
+        reg[i] = 0;  // Just an example, you can initialize it with any values
+    }
+
+    // Copy the contents of reg to reg_copy
+    for (int i = 0; i < R_COUNT; ++i) {
+        reg_copy[i] = reg[i];
+    }
+
+    // Display the contents of reg_copy
+    printf("Contents of registers:\n");
+    for (int i = 0; i < R_COUNT; ++i) {
+        printf("reg[%d]: %d\n", i, reg_copy[i]);
+    }
+}
+
+int main(int argc, const char* argv[]){
+    if(argc != 2){
+        printf("Usage: ./lc3 <program>");
+        exit(2);
+    }
+    if(!load_program_from_file(argv[1])){
+        printf("Unable to load program from file %s",argv[2]);
+        exit(2);
+    }
+
+    setup();
+    
+    while (running)
+    {
+        printf ("Execute next instruction (1-Yes | 0-No) : ");
+        int input;
+        scanf ("%d", &input);
+        printf ("\n");
+        if (input == 1) {
+            execute;
+        }
+        else {
             break;
         }
     }
