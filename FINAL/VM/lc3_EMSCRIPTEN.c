@@ -11,6 +11,7 @@
 #include <emscripten.h>
 
 
+bool locked = true;
 // memory
 uint16_t memory[UINT16_MAX];
 
@@ -69,12 +70,14 @@ enum
     TRAP_HALT = 0x25   /* halt the program */
 };
 
-enum            //TODO this should be useless too
-{
-    MR_KBSR = 0xFE00, /* keyboard status */
-    MR_KBDR = 0xFE02  /* keyboard data */
-};
 
+EMSCRIPTEN_KEEPALIVE
+void locker(){
+    if(locked)
+    locked = true;
+    else
+    locaked = false;
+}
 
 void update_flags(uint16_t r0){
     if(reg[r0]>>15 == 1){
@@ -99,28 +102,8 @@ uint16_t swap16(uint16_t x)
     return (x << 8) | (x >> 8);
 }
 
-uint16_t check_key()                //TODO      this function should be made useless
-{
-    fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(STDIN_FILENO, &readfds);
-
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-    return select(1, &readfds, NULL, NULL, &timeout) != 0;
-}
-
-
 uint16_t mem_read(uint16_t addr){          //TODO   we have to remove the Keyboard keybindings and somehow make this to accept everything directly
-    if(addr == MR_KBSR){
-        if(check_key()){
-            memory[MR_KBSR] = 1 << 15;
-            memory[MR_KBDR] = getchar();
-        }else{
-            memory[MR_KBSR] = 0;
-        }
-    }
+    
     uint16_t val = memory[addr];
     return val;
 }
