@@ -12,34 +12,34 @@ function App() {
   ]);
 
   const handleNext = () => {
-    retrn(0);
     setRegisters([...registers,    { R_R0: 1, R_R1: 2, R_R2: 3, R_R3: 0, R_R4: 0, R_R5: 0, R_R6: 0, R_R7: 0, R_PC: 0, R_COND: 0, R_COUNT: 0 }
     ])
   };
 
   const handleExecuteAll = () => {
-    retrn(0);
+    console.log("all");
   };
-
-  const stepDown = () =>{
-    retrn(1);
-  }
 
   useEffect(() => { 
     createModule().then((Module) => {    
-      setRetrn(() => Module.cwrap("locker", "number", ["string"]));    
+      setRetrn(() => Module.cwrap("locker", "string", ["string"]));    
     });  }, []);  
       if (!retrn) {    
         return "Loading webassembly...";  
       }
 
+  const handleClick= ()=>{
+    setResult(retrn(name))
+  }
   const headings = Object.keys(registers[0]);
   return (
     <div className="App">
+     <input onChange={e=>{setName(e.target.value)}}></input>
+     <button onClick={()=>handleClick()}>Lock/Unlock</button>
+     <p>Status:{result}</p>
      <div>
       <div>
-        <button onClick={handleNext}>Step Up</button>
-        <button onClick={handleNext}>Step Down</button>
+        <button onClick={handleNext}>Next</button>
         <button onClick={handleExecuteAll}>Execute All</button>
       </div>
       <table>
