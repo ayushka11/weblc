@@ -10,6 +10,8 @@
 #include <termios.h>
 #include <sys/mman.h>
 #include <emscripten.h>
+#include <string.h>
+#include <stdbool.h>
 
 enum
 {
@@ -199,6 +201,16 @@ void read_array_from_file(FILE* file, uint16_t* array, size_t size)
     
 }
 
+EMSCRIPTEN_KEEPALIVE
+char* print_registers(char* json)
+{
+    snprintf(json, 256, "{\"R0\": %d, \"R1\": %d, \"R2\": %d, \"R3\": %d, \"R4\": %d, \"R5\": %d, \"R6\": %d, \"R7\": %d, \"R_PC\": %d, \"R_COND\": %d, }\n",
+             reg[0], reg[1], reg[2], reg[3], reg[4], reg[5], reg[6], reg[7], reg[8], reg[9]);
+    return json;
+}
+
+
+EMSCRIPTEN_KEEPALIVE
 int single_instruction(int running){
     uint16_t instr = mem_read(reg[R_PC]++);
         uint16_t op = instr >> 12;
@@ -423,6 +435,8 @@ int main(int argc, const char* argv[])
 {
     FILE* memory_file = fopen("memory.mem", "wb");
     FILE* register_file = fopen("register.mem", "wb");
+    char json[256];
+
     if (!read_image("program"))
     {
         printf("failed to load image: %s\n", "program");
@@ -440,11 +454,11 @@ int main(int argc, const char* argv[])
     enum { PC_START = 0x3000 };
     reg[R_PC] = PC_START;
 
-    int running = 1;
-    while (running)
+    int running = 100;
+    while (running--)
     {
-        /* FETCH */
         single_instruction(running);
+        printf("%s\n", print_registers(json));
         
     }
     restore_input_buffering();
