@@ -15,6 +15,7 @@
 bool locked = true;
 // memory
 uint16_t memory[UINT16_MAX];
+uint16_t memory_prev[UINT16_MAX];
 
 // registers
 
@@ -33,6 +34,8 @@ enum {
 };
 
 uint16_t reg[R_COUNT];
+uint16_t reg_copy[R_COUNT];
+uint16_t reg_prev[R_COUNT];
 
 enum
 {
@@ -280,22 +283,8 @@ void trap_putsp(){
     fflush(stdout);
 }
 
-
-int main(int argc, const char* argv[]){     //TODO remove the argument checks and the if statements below and make memory to load the function from JS
-    if(argc != 2){
-        printf("Usage: ./lc3 <program>");
-        exit(2);
-    }
-    if(!load_program_from_file(argv[1])){
-        printf("Unable to load program from file %s",argv[2]);
-        exit(2);
-    }
-
-    // setup();
-    int running = 1;
-    while (running)
-    {
-        uint16_t instr = mem_read(reg[R_PC]++);
+void execute_single_instruction() {
+    uint16_t instr = mem_read(reg[R_PC]++);
         uint16_t op = instr >> 12;
         switch (op)
         {
@@ -365,6 +354,89 @@ int main(int argc, const char* argv[]){     //TODO remove the argument checks an
             abort();
             break;
         }
+        copy_registers();
+}
+
+void copy_registers() { //to copy registers and display them
+    for (int i = 0; i < R_COUNT; ++i) {
+        reg[i] = 0;  // Just an example, you can initialize it with any values
+    }
+
+    // Copy the contents of reg to reg_copy
+    for (int i = 0; i < R_COUNT; ++i) {
+        reg_copy[i] = reg[i];
+    }
+
+    // Display the contents of reg_copy
+    printf("Contents of registers:\n");
+    for (int i = 0; i < R_COUNT; ++i) {
+        printf("reg[%d]: %d\n", i, reg_copy[i]);
+    }
+}
+
+// Function to write array contents to a file
+void write_array_to_file(const char *filename, const int *array, size_t size) {
+    FILE *file = fopen(filename, "wb"); // Open file in binary write mode
+    if (file != NULL) {
+        fwrite(array, sizeof(int), size, file); // Write array to file
+        fclose(file); // Close the file
+    } else {
+        printf("Error: Unable to open file %s for writing.\n", filename);
+    }
+}
+
+// Function to read file contents into an array
+void read_file_into_array(const char *filename, int *array, size_t size) {
+    FILE *file = fopen(filename, "rb"); // Open file in binary read mode
+    if (file != NULL) {
+        fread(array, sizeof(int), size, file); // Read file into array
+        fclose(file); // Close the file
+    } else {
+        printf("Error: Unable to open file %s for reading.\n", filename);
+    }
+}
+
+void step_down() {
+    read_file_into_array(memorystore.bin, memory, UINT16_MAX);
+    read_file_into_array(registerstore.bin, reg, R_COUNT);
+    execute_single_instruction();
+}
+
+void execute(int status = 0) {
+    switch (status){
+        case 0:
+            write_array_to_file(memorystore.bin, memory, UINT16_MAX);
+            write_array_to_file(registerstore.bin, reg, R_COUNT);
+            execute_single_instruction();
+            break;
+        case 1:
+            step_down();
+            break;
+        default:
+            write_array_to_file(memorystore.bin, memory, UINT16_MAX);
+            write_array_to_file(registerstore.bin, memory, R_COUNT);
+            execute_single_instruction();
+            break;
+    }
+}
+
+int main(int argc, const char* argv[]){     //TODO remove the argument checks and the if statements below and make memory to load the function from JS
+    if(argc != 2){
+        printf("Usage: ./lc3 <program>");
+        exit(2);
+    }
+    if(!load_program_from_file(argv[1])){
+        printf("Unable to load program from file %s",argv[2]);
+        exit(2);
+    }
+
+    // setup();
+    while (locked)
+    {
+        int status;
+        printf("status : ");
+        scanf("%d", &status);
+        execute(status);
     }
     // restore_input_buffering();
     return 0;
