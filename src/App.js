@@ -9,7 +9,7 @@ function App() {
   const [result,setResult] = useState("");
   useEffect(() => { 
     createModule().then((Module) => {    
-      setRetrn(() => Module.cwrap("idk", "string", ["string"]));    
+      setRetrn(() => Module.cwrap("locker", "string", ["string"]));    
     });  }, []);  
       if (!retrn) {    
         return "Loading webassembly...";  
@@ -21,8 +21,8 @@ function App() {
   return (
     <div className="App">
      <input onChange={e=>{setName(e.target.value)}}></input>
-     <button onClick={()=>handleClick()}>Submit</button>
-     <p>You input:{result}</p>
+     <button onClick={()=>handleClick()}>Lock/Unlock</button>
+     <p>Status:{result}</p>
     </div>
   );
 }

@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <emscripten.h>
-
+#include <stdbool.h>
 
 bool locked = true;
 // memory
@@ -72,11 +72,12 @@ enum
 
 
 EMSCRIPTEN_KEEPALIVE
-void locker(){
+bool locker(){
     if(locked)
     locked = true;
     else
-    locaked = false;
+    locked = false;
+    return locked;
 }
 
 void update_flags(uint16_t r0){
@@ -289,7 +290,7 @@ int main(int argc, const char* argv[]){     //TODO remove the argument checks an
         exit(2);
     }
 
-    setup();
+    // setup();
     int running = 1;
     while (running)
     {
@@ -364,6 +365,6 @@ int main(int argc, const char* argv[]){     //TODO remove the argument checks an
             break;
         }
     }
-    restore_input_buffering();
+    // restore_input_buffering();
     return 0;
 }
