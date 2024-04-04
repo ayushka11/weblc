@@ -398,8 +398,8 @@ void read_file_into_array(const char *filename, int *array, size_t size) {
 }
 
 void step_down() {
-    read_file_into_array("memorystore.txt", memory, UINT16_MAX);
-    read_file_into_array("registerstore.txt", reg, R_COUNT);
+    read_file_into_array("memory.txt", memory, UINT16_MAX);
+    read_file_into_array("register.txt", reg, R_COUNT);
     execute_single_instruction();
 }
 
@@ -407,16 +407,16 @@ EMSCRIPTEN_KEEPALIVE
 void execute(int status) {
     switch (status){
         case 0:
-            write_array_to_file("memorystore.txt", memory, UINT16_MAX);
-            write_array_to_file("registerstore.txt", reg, R_COUNT);
+            write_array_to_file("memory.txt", memory, UINT16_MAX);
+            write_array_to_file("register.txt", reg, R_COUNT);
             execute_single_instruction();
             break;
         case 1:
             step_down();
             break;
         default:
-            write_array_to_file("memorystore.txt", memory, UINT16_MAX);
-            write_array_to_file("registerstore.txt", memory, R_COUNT);
+            write_array_to_file("memory.txt", memory, UINT16_MAX);
+            write_array_to_file("register.txt", memory, R_COUNT);
             execute_single_instruction();
             break;
     }
