@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/mman.h>
+#include <emscripten.h>
 
 
 // memory
@@ -98,7 +99,7 @@ uint16_t swap16(uint16_t x)
     return (x << 8) | (x >> 8);
 }
 
-uint16_t check_key()
+uint16_t check_key()                //TODO
 {
     fd_set readfds;
     FD_ZERO(&readfds);
@@ -111,7 +112,7 @@ uint16_t check_key()
 }
 
 
-uint16_t mem_read(uint16_t addr){
+uint16_t mem_read(uint16_t addr){          //TODO
     if(addr == MR_KBSR){
         if(check_key()){
             memory[MR_KBSR] = 1 << 15;
@@ -124,11 +125,11 @@ uint16_t mem_read(uint16_t addr){
     return val;
 }
 
-void mem_write(uint16_t addr, uint16_t val){
+void mem_write(uint16_t addr, uint16_t val){    //TODO
     memory[addr] = val;
 }
 
-int load_program_from_file(const char* file){
+int load_program_from_file(const char* file){       //TODO
     FILE* image= fopen(file,"rb");
     if(!image){
         return 0;
@@ -324,7 +325,7 @@ void setup(){
 }
 
 
-int main(int argc, const char* argv[]){
+int main(int argc, const char* argv[]){     //TODO
     if(argc != 2){
         printf("Usage: ./lc3 <program>");
         exit(2);
