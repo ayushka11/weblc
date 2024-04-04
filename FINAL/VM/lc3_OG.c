@@ -179,7 +179,7 @@ uint16_t mem_read(uint16_t address)
 int main(int argc, const char* argv[])
 {
     
-    read_image("test");
+    read_image("/home/percy/weblc/WASM/src/ok-out.obj");
     signal(SIGINT, handle_interrupt);
     disable_input_buffering();
 
