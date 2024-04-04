@@ -69,7 +69,7 @@ enum
     TRAP_HALT = 0x25   /* halt the program */
 };
 
-enum
+enum            //TODO this should be useless too
 {
     MR_KBSR = 0xFE00, /* keyboard status */
     MR_KBDR = 0xFE02  /* keyboard data */
@@ -99,7 +99,7 @@ uint16_t swap16(uint16_t x)
     return (x << 8) | (x >> 8);
 }
 
-uint16_t check_key()                //TODO
+uint16_t check_key()                //TODO      this function should be made useless
 {
     fd_set readfds;
     FD_ZERO(&readfds);
@@ -112,7 +112,7 @@ uint16_t check_key()                //TODO
 }
 
 
-uint16_t mem_read(uint16_t addr){          //TODO
+uint16_t mem_read(uint16_t addr){          //TODO   we have to remove the Keyboard keybindings and somehow make this to accept everything directly
     if(addr == MR_KBSR){
         if(check_key()){
             memory[MR_KBSR] = 1 << 15;
@@ -125,11 +125,11 @@ uint16_t mem_read(uint16_t addr){          //TODO
     return val;
 }
 
-void mem_write(uint16_t addr, uint16_t val){    //TODO
+void mem_write(uint16_t addr, uint16_t val){    //TODO  i dont think this has to be changed much
     memory[addr] = val;
 }
 
-int load_program_from_file(const char* file){       //TODO
+int load_program_from_file(const char* file){       //TODO      convert this function into the QR code data reading function. The data will be in the form of ascii characters and this should be converted into binary with the ascii binary codes appended together.
     FILE* image= fopen(file,"rb");
     if(!image){
         return 0;
@@ -296,36 +296,7 @@ void trap_putsp(){
 }
 
 
-/* Input Buffering */
-struct termios original_tio;
-
-void disable_input_buffering()
-{
-    tcgetattr(STDIN_FILENO, &original_tio);
-    struct termios new_tio = original_tio;
-    new_tio.c_lflag &= ~ICANON & ~ECHO;
-    tcsetattr(STDIN_FILENO, TCSANOW, &new_tio);
-}
-
-void restore_input_buffering()
-{
-    tcsetattr(STDIN_FILENO, TCSANOW, &original_tio);
-}
-
-void handle_interrupt(int signal)
-{
-    restore_input_buffering();
-    printf("\n");
-    exit(-2);
-}
-
-void setup(){
-    signal(SIGINT, handle_interrupt);
-    disable_input_buffering();
-}
-
-
-int main(int argc, const char* argv[]){     //TODO
+int main(int argc, const char* argv[]){     //TODO remove the argument checks and the if statements below and make memory to load the function from JS
     if(argc != 2){
         printf("Usage: ./lc3 <program>");
         exit(2);
