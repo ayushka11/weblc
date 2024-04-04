@@ -9,4 +9,6 @@ emcc --no-entry $SRC_FILE -o $OUTPUT_FILE \
   -s USE_ES6_IMPORT_META=0 \
   -s EXPORTED_FUNCTIONS='["_execute", "_malloc", "_free"]' \
   -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' \
+  --preload-file FINAL/VM/memorystore.txt \
+  --preload-file FINAL/VM/registerstore.txt \
   -O3

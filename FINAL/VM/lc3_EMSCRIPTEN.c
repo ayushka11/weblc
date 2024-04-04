@@ -106,7 +106,7 @@ uint16_t swap16(uint16_t x)
     return (x << 8) | (x >> 8);
 }
 
-uint16_t mem_read(uint16_t addr){          //TODO   we have to remove the Keyboard keybindings and somehow make this to accept everything directly
+uint16_t mem_read(uint16_t addr){          //TODO   we have to remove the Keyboard keytxtdings and somehow make this to accept everything directly
     
     uint16_t val = memory[addr];
     return val;
@@ -116,7 +116,7 @@ void mem_write(uint16_t addr, uint16_t val){    //TODO  i dont think this has to
     memory[addr] = val;
 }
 
-int load_program_from_file(const char* file){       //TODO      convert this function into the QR code data reading function. The data will be in the form of ascii characters and this should be converted into binary with the ascii binary codes appended together.
+int load_program_from_file(const char* file){       //TODO      convert this function into the QR code data reading function. The data will be in the form of ascii characters and this should be converted into txtary with the ascii txtary codes appended together.
     FILE* image= fopen(file,"rb");
     if(!image){
         return 0;
@@ -377,7 +377,7 @@ void execute_single_instruction() {
 
 // Function to write array contents to a file
 void write_array_to_file(const char *filename, const int *array, size_t size) {
-    FILE *file = fopen(filename, "wb"); // Open file in binary write mode
+    FILE *file = fopen(filename, "wb"); // Open file in txtary write mode
     if (file != NULL) {
         fwrite(array, sizeof(int), size, file); // Write array to file
         fclose(file); // Close the file
@@ -388,7 +388,7 @@ void write_array_to_file(const char *filename, const int *array, size_t size) {
 
 // Function to read file contents into an array
 void read_file_into_array(const char *filename, int *array, size_t size) {
-    FILE *file = fopen(filename, "rb"); // Open file in binary read mode
+    FILE *file = fopen(filename, "rb"); // Open file in txtary read mode
     if (file != NULL) {
         fread(array, sizeof(int), size, file); // Read file into array
         fclose(file); // Close the file
@@ -398,8 +398,8 @@ void read_file_into_array(const char *filename, int *array, size_t size) {
 }
 
 void step_down() {
-    read_file_into_array("memorystore.bin", memory, UINT16_MAX);
-    read_file_into_array("registerstore.bin", reg, R_COUNT);
+    read_file_into_array("memorystore.txt", memory, UINT16_MAX);
+    read_file_into_array("registerstore.txt", reg, R_COUNT);
     execute_single_instruction();
 }
 
@@ -407,16 +407,16 @@ EMSCRIPTEN_KEEPALIVE
 void execute(int status) {
     switch (status){
         case 0:
-            write_array_to_file("memorystore.bin", memory, UINT16_MAX);
-            write_array_to_file("registerstore.bin", reg, R_COUNT);
+            write_array_to_file("memorystore.txt", memory, UINT16_MAX);
+            write_array_to_file("registerstore.txt", reg, R_COUNT);
             execute_single_instruction();
             break;
         case 1:
             step_down();
             break;
         default:
-            write_array_to_file("memorystore.bin", memory, UINT16_MAX);
-            write_array_to_file("registerstore.bin", memory, R_COUNT);
+            write_array_to_file("memorystore.txt", memory, UINT16_MAX);
+            write_array_to_file("registerstore.txt", memory, R_COUNT);
             execute_single_instruction();
             break;
     }
